@@ -1,14 +1,149 @@
-let lang='zh',savedTheme='dark'
-try {lang=localStorage.getItem('frame09-language')==='en'?'en':'zh';savedTheme=localStorage.getItem('frame09-theme')==='light'?'light':'dark'}catch{}
-const dictionary={
-'九宫格分镜裁切工作台':'Storyboard cropping workspace','本地处理 · 无需上传':'On-device · No uploads','九个镜头，一次拆分':'Nine frames. One cut','导入九宫格，裁切单帧，为每个镜头留下灵感。':'Split your storyboard into frames. Give every shot a note.','01 导入':'01 Import','02 裁切与备注':'02 Crop & annotate','03 导出':'03 Export','原始分镜':'Source storyboard','试用示例 ↗':'Try a sample ↗','点击或拖入九宫格图片':'Click or drop a storyboard','PNG / JPG / WebP · 最大 40 MB':'PNG / JPG / WebP · Up to 40 MB','更换':'Replace','裁切设置':'Crop settings','按从左到右、从上到下的顺序编号。':'Numbered left to right, top to bottom.','裁切方式':'Crop mode','自动识别画框':'Detect frame borders','手动等分':'Manual grid','识别规则白色画框，未识别时按九宫格等分。':'Detect regular white frames; otherwise use an equal grid.','外边距':'Outer margin','格间距':'Gutter','有白边或分隔线？调整数值后重新裁切。':'Edit spacing to switch to manual mode, then crop again.','▦　 一键裁切 9 帧':'▦　 Crop 9 frames','导出设置':'Export settings','文件名前缀':'Filename prefix','图片格式':'Image format','PNG · 无损':'PNG · Lossless','JPG · 高质量':'JPG · High quality','在图片下方附加备注':'Append notes below images','增加白色备注区，不覆盖画面':'Adds a white caption area; keeps the image intact','ZIP 同时包含备注.txt 和镜头清单.json。':'ZIP includes Notes.txt and Frames.json.','↓　 批量下载 ZIP':'↓　 Download all as ZIP','镜头序列':'Frame sequence','原始像素裁切，不缩放画面':'Original pixels. No rescaling.','图片只在当前设备处理':'Images stay on this device','备注自动保存在本机浏览器':'Notes saved in this browser','让分镜进入下一步。':'Your next shot starts here.','关闭预览':'Close preview','单帧放大预览':'Frame preview','导入的九宫格原图':'Original storyboard','等待裁切':'Awaiting crop','镜头备注':'Shot notes','景别、动作、对白或灵感…':'Framing, action, dialogue, ideas…','下载单帧 ↓':'Download ↓','浏览器存储已满，备注仍可随 ZIP 下载':'Browser storage is full. Notes can still be downloaded in the ZIP.','边距和间距须为非负整数':'Spacing must be a non-negative whole number','边距或间距过大，请减小数值':'Spacing is too large. Please reduce it.','请选择 PNG、JPG 或 WebP 图片':'Choose a PNG, JPG or WebP image','图片超过 40 MB，请先缩小文件':'Image exceeds 40 MB. Please reduce its size.','图片至少需要 3 × 3 像素':'Image must be at least 3 × 3 pixels','图片超过 6000 万像素，请先缩小尺寸':'Image exceeds 60 megapixels. Please resize it.','图片已就绪，点击「一键裁切 9 帧」':'Image ready. Click “Crop 9 frames”.','已导入图片，可以开始裁切':'Image loaded. Ready to crop.','图片无法读取，请使用有效的 PNG、JPG 或 WebP':'Unable to read image. Use a valid PNG, JPG or WebP.','图片生成失败，请尝试更小的原图':'Image generation failed. Try a smaller source.','9 帧已就绪 · 点击图片放大，备注可直接编辑':'9 frames ready · Click to enlarge, type to annotate','裁切完成，9 张单帧已就绪':'All 9 frames are ready','备注导出尺寸过大，请减少备注或缩小原图':'Caption output is too large. Shorten notes or resize the image.','正在生成':'Generating','（无备注）':'(No notes)','ZIP 已生成，请在浏览器下载列表中查看':'ZIP ready. Check your browser downloads.','9 张图片与备注已打包':'9 images and notes packaged','导出失败':'Export failed','裁切设置已更改，请重新裁切':'Crop settings changed. Please crop again.','一次处理一张图片，已选择第一张':'One image at a time. The first file was selected.','手动模式：按外边距与格间距等分。':'Manual mode: divide using margin and gutter.','已识别 9 个画框，自动移除黑色间隔与白色细框。':'9 frames detected. Black gutters and white outlines removed.','未识别到规则画框，使用等分；可手动调整边距。':'No regular frames detected. Equal grid used; adjust spacing if needed.'
+'use strict'
+// Key-based translations. Every visible string lives here; markup only carries data-i18n keys.
+const STRINGS = {
+  zh: {
+    title: 'FRAME / 09 — 九宫格分镜裁切器',
+    tagline: '九宫格分镜裁切',
+    local: '本地处理 · 不上传',
+    headline: '九个镜头，<em>一次</em>拆分。',
+    lede: '导入一张九宫格分镜，按原始像素拆成 9 张单帧，逐帧写下备注，再一次打包下载。',
+    step1: '导入', step2: '裁切与备注', step3: '导出',
+    source: '原始分镜', demo: '试用示例 ↗',
+    dropTitle: '点击、拖入或粘贴九宫格图片',
+    dropMeta: 'PNG · JPG · WebP — 最大 40 MB',
+    replace: '更换',
+    crop: '裁切设置', modeAuto: '自动识别画框', modeManual: '手动等分',
+    margin: '外边距', gutter: '格间距',
+    spacingHint: '修改数值会切换到手动等分。编号从左到右、从上到下。',
+    cutBtn: '裁切 9 帧', recut: '重新裁切', cutting: '正在裁切…',
+    export: '导出', prefix: '文件名前缀', format: '图片格式',
+    png: 'PNG 无损', jpeg: 'JPG 高质量',
+    captions: '在图片下方附加备注', captionsHint: '增加白色备注区，不覆盖画面',
+    zipHint: 'ZIP 内含 9 张图片、备注.txt 与镜头清单.json',
+    download: '下载 ZIP', dockImport: '导入九宫格图片',
+    sequence: '镜头序列',
+    seqEmpty: '导入图片后，九个镜头会出现在这里',
+    seqReady: '图片已就绪，点击「裁切 9 帧」',
+    seqDone: '点击画面放大 · 备注自动保存',
+    seqStale: '设置已更改，请重新裁切',
+    awaiting: '等待裁切', noteLabel: '镜头备注', notePh: '景别、动作、对白或灵感…',
+    dlOne: '下载 ↓',
+    previewOf: n => `预览第 ${n} 帧`, downloadOf: n => `下载第 ${n} 帧`,
+    foot1: '图片只在当前设备处理', foot2: '备注按图片指纹保存在本机浏览器',
+    footer: '让分镜进入下一步。',
+    dropOverlay: '松开即可导入',
+    detecting: '正在识别画框…',
+    detected: '已识别 9 个画框，自动去除白框与黑色间隔。',
+    notDetected: '未识别到规则画框，已按九宫格等分；可手动调整边距。',
+    manualInfo: '手动模式：按外边距与格间距等分。',
+    close: '关闭', prev: '上一帧', next: '下一帧',
+    toLight: '切换到浅色主题', toDark: '切换到深色主题', langBtn: 'EN', langAria: 'Switch to English',
+    progress: i => `正在生成 ${i} / 9…`,
+    zipDone: 'ZIP 已生成，请查看浏览器下载列表', packaged: '9 张图片与备注已打包',
+    exportFail: '导出失败，请重试或缩小原图',
+    noNote: '（无备注）', multiFile: '一次处理一张图片，已选择第一张',
+    storageFull: '浏览器存储已满，备注仍会随 ZIP 导出',
+    cutDone: '裁切完成，9 张单帧已就绪', loaded: '图片已导入',
+    notesRestored: '已恢复这张图片之前的备注', settingsChanged: '裁切设置已更改，请重新裁切',
+    errSpacing: '边距和间距须为非负整数', errSpacingLarge: '边距或间距过大，请减小数值',
+    errType: '请选择 PNG、JPG 或 WebP 图片', errHeic: 'HEIC 格式暂不支持，请先导出为 JPG 或 PNG',
+    errSize: '图片超过 40 MB，请先压缩', errTiny: '图片至少需要 3 × 3 像素',
+    errPixels: '图片超过 6000 万像素，请先缩小尺寸',
+    errRead: '图片无法读取，请使用有效的 PNG、JPG 或 WebP',
+    errCanvas: '图片生成失败，设备内存可能不足，请尝试更小的原图',
+    errCaption: '附加备注后尺寸过大，请缩短备注或缩小原图',
+    zipName: '9帧', notesFile: '备注.txt', jsonFile: '镜头清单.json', demoFile: '九宫格示例.png'
+  },
+  en: {
+    title: 'FRAME / 09 — Storyboard Cutter',
+    tagline: '3×3 storyboard cutter',
+    local: 'On-device · No uploads',
+    headline: 'Nine frames. <em>One</em> cut.',
+    lede: 'Drop in a 3×3 storyboard. Get nine full-resolution frames, write a note for each shot, and download them as one ZIP.',
+    step1: 'Import', step2: 'Crop & annotate', step3: 'Export',
+    source: 'Source storyboard', demo: 'Try a sample ↗',
+    dropTitle: 'Click, drop or paste a storyboard',
+    dropMeta: 'PNG · JPG · WebP — up to 40 MB',
+    replace: 'Replace',
+    crop: 'Crop settings', modeAuto: 'Detect borders', modeManual: 'Manual grid',
+    margin: 'Margin', gutter: 'Gutter',
+    spacingHint: 'Editing spacing switches to manual grid. Shots are numbered left to right, top to bottom.',
+    cutBtn: 'Crop 9 frames', recut: 'Crop again', cutting: 'Cropping…',
+    export: 'Export', prefix: 'Filename prefix', format: 'Image format',
+    png: 'PNG lossless', jpeg: 'JPG high quality',
+    captions: 'Append notes below each image', captionsHint: 'Adds a white caption strip; never covers the frame',
+    zipHint: 'ZIP contains 9 images, Notes.txt and Frames.json',
+    download: 'Download ZIP', dockImport: 'Import a storyboard',
+    sequence: 'Shot sequence',
+    seqEmpty: 'Your nine shots appear here after import',
+    seqReady: 'Image ready — press “Crop 9 frames”',
+    seqDone: 'Click a frame to enlarge · notes save automatically',
+    seqStale: 'Settings changed — crop again',
+    awaiting: 'Awaiting crop', noteLabel: 'Shot notes', notePh: 'Framing, action, dialogue, ideas…',
+    dlOne: 'Download ↓',
+    previewOf: n => `Preview frame ${n}`, downloadOf: n => `Download frame ${n}`,
+    foot1: 'Images never leave this device', foot2: 'Notes are kept in this browser, keyed to the image',
+    footer: 'Your next shot starts here.',
+    dropOverlay: 'Release to import',
+    detecting: 'Detecting frame borders…',
+    detected: '9 frames detected — white borders and gutters removed.',
+    notDetected: 'No regular borders found — using an equal grid. Adjust spacing if needed.',
+    manualInfo: 'Manual: equal division using margin and gutter.',
+    close: 'Close', prev: 'Previous frame', next: 'Next frame',
+    toLight: 'Switch to light theme', toDark: 'Switch to dark theme', langBtn: '中', langAria: '切换到中文',
+    progress: i => `Generating ${i} / 9…`,
+    zipDone: 'ZIP ready — check your browser downloads', packaged: '9 images and notes packaged',
+    exportFail: 'Export failed. Try again or use a smaller source.',
+    noNote: '(no notes)', multiFile: 'One image at a time — using the first file',
+    storageFull: 'Browser storage is full. Notes are still included in the ZIP.',
+    cutDone: 'Done — 9 frames ready', loaded: 'Image loaded',
+    notesRestored: 'Restored your earlier notes for this image', settingsChanged: 'Crop settings changed — crop again',
+    errSpacing: 'Spacing must be a non-negative whole number', errSpacingLarge: 'Spacing is too large. Reduce it.',
+    errType: 'Choose a PNG, JPG or WebP image', errHeic: 'HEIC is not supported yet. Export as JPG or PNG first.',
+    errSize: 'Image exceeds 40 MB. Compress it first.', errTiny: 'Image must be at least 3 × 3 pixels',
+    errPixels: 'Image exceeds 60 megapixels. Resize it first.',
+    errRead: 'Unable to read image. Use a valid PNG, JPG or WebP.',
+    errCanvas: 'Could not render the image — the device may be low on memory. Try a smaller source.',
+    errCaption: 'Captioned output is too large. Shorten notes or use a smaller source.',
+    zipName: '9-frames', notesFile: 'Notes.txt', jsonFile: 'Frames.json', demoFile: 'storyboard-sample.png'
+  }
 }
-const reverse=Object.fromEntries(Object.entries(dictionary).map(([a,b])=>[b,a]))
-function T(text){const zh=reverse[text]||text;return lang==='en'?(dictionary[zh]||zh):zh}
-function translateTree(root=document.body){
- const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n
- while(n=walker.nextNode()){if(['SCRIPT','STYLE','TEXTAREA'].includes(n.parentElement?.tagName)||n.parentElement?.closest('#filename,#preview-note'))continue;const raw=n.nodeValue,trim=raw.trim();if(dictionary[trim]||reverse[trim])n.nodeValue=raw.replace(trim,T(trim))}
- root.querySelectorAll('[placeholder],[aria-label],[alt]').forEach(el=>{for(const attr of ['placeholder','aria-label','alt'])if(el.hasAttribute(attr))el.setAttribute(attr,T(el.getAttribute(attr)))})
+
+let lang = 'zh'
+try { const saved = localStorage.getItem('frame09-language'); lang = saved === 'en' || saved === 'zh' ? saved : (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en' } catch {}
+
+function t(key, ...args) {
+  const value = STRINGS[lang][key] ?? STRINGS.zh[key] ?? key
+  return typeof value === 'function' ? value(...args) : value
 }
-function setLanguage(value){lang=value;document.documentElement.lang=value==='en'?'en':'zh-CN';document.title=value==='en'?'FRAME / 09 — Storyboard Cutter':'FRAME / 09 — 九宫格分镜裁切器';document.documentElement.dataset.lang=value;translateTree();document.querySelector('h1>span').textContent=value==='en'?'.':'。';document.getElementById('language').textContent=value==='zh'?'EN':'ZH';try{localStorage.setItem('frame09-language',value)}catch{}}
-function setTheme(value){document.documentElement.dataset.theme=value;document.getElementById('theme').textContent=value==='dark'?'☀ Light':'☾ Dark';document.getElementById('theme').setAttribute('aria-label',value==='dark'?'Switch to light theme':'Switch to dark theme');try{localStorage.setItem('frame09-theme',value)}catch{}}
+
+function applyI18n(root = document) {
+  root.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n) })
+  root.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml) }) // trusted, static strings only
+  root.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh) })
+  root.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)) })
+}
+
+function setLanguage(value) {
+  lang = value === 'en' ? 'en' : 'zh'
+  document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
+  document.documentElement.dataset.lang = lang
+  document.title = t('title')
+  applyI18n()
+  const btn = document.getElementById('language')
+  btn.textContent = t('langBtn'); btn.setAttribute('aria-label', t('langAria'))
+  try { localStorage.setItem('frame09-language', lang) } catch {}
+}
+
+function effectiveTheme() {
+  return document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+}
+
+function setTheme(value, persist = true) {
+  if (value) document.documentElement.dataset.theme = value
+  const dark = effectiveTheme() === 'dark', btn = document.getElementById('theme')
+  btn.dataset.mode = dark ? 'dark' : 'light'
+  btn.setAttribute('aria-label', t(dark ? 'toLight' : 'toDark'))
+  btn.title = btn.getAttribute('aria-label')
+  if (persist && value) try { localStorage.setItem('frame09-theme', value) } catch {}
+}

@@ -1,10 +1,147 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FRAME / 09 — 九宫格分镜裁切器</title><link rel="stylesheet" href="style.css"></head>
-<body><header><a class="brand" href="./"><span class="brandmark">▦</span> FRAME <span class="mono">/ 09</span></a><span class="header-desc">九宫格分镜裁切工作台</span><div class="preferences"><button id="language" class="preference" aria-label="Switch language">EN</button><button id="theme" class="preference" aria-label="切换明暗主题">☀ Light</button></div><span class="local"><i></i> 本地处理 · 无需上传</span></header>
-<main><section class="intro"><div><div class="eyebrow">STORYBOARD TOOLKIT / 001</div><h1>九个镜头，一次拆分<span>。</span></h1><p>导入九宫格，裁切单帧，为每个镜头留下灵感。</p></div><div class="steps"><span class="active">01 导入</span><b>—</b><span>02 裁切与备注</span><b>—</b><span>03 导出</span></div></section>
-<div class="workspace"><aside><div class="section-head"><h2><span>01</span> 原始分镜</h2><button id="demo" class="text-btn">试用示例 ↗</button></div><input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden><button id="drop" class="drop"><span class="upload-symbol">＋</span><strong>点击或拖入九宫格图片</strong><small>PNG / JPG / WebP · 最大 40 MB</small></button><div id="source" hidden><div class="source-wrap"><img id="original" alt="导入的九宫格原图"><svg id="overlay" aria-hidden="true"></svg></div><div class="file-info"><span id="filename"></span><button id="replace" class="text-btn">更换</button></div><p id="dimensions" class="subtle mono"></p></div>
-<div class="settings"><div class="section-head"><h2>裁切设置</h2><span class="tag">3 × 3</span></div><p class="hint">按从左到右、从上到下的顺序编号。</p><label class="field-label" for="crop-mode">裁切方式</label><select id="crop-mode"><option value="auto">自动识别画框</option><option value="manual">手动等分</option></select><p id="detection-info" class="hint">识别规则白色画框，未识别时按九宫格等分。</p><div class="fields"><label>外边距 <span>px</span><input id="margin" type="number" min="0" step="1" value="0"></label><label>格间距 <span>px</span><input id="gutter" type="number" min="0" step="1" value="0"></label></div><p class="hint">有白边或分隔线？调整数值后重新裁切。</p><button id="cut" class="primary full" disabled>▦　 一键裁切 9 帧</button></div>
-<div class="export-settings"><h2><span>03</span> 导出设置</h2><label class="field-label" for="prefix">文件名前缀</label><input id="prefix" value="storyboard" maxlength="60"><div class="format-row"><span>图片格式</span><select id="format" aria-label="图片格式"><option value="png">PNG · 无损</option><option value="jpeg">JPG · 高质量</option></select></div><label class="check"><input id="captions" type="checkbox"><span>在图片下方附加备注<small>增加白色备注区，不覆盖画面</small></span></label><p class="hint">ZIP 同时包含备注.txt 和镜头清单.json。</p><button id="export" class="primary full" disabled>↓　 批量下载 ZIP</button><div id="progress" class="hint" role="status" aria-live="polite"></div></div></aside>
-<section class="frames-panel"><div class="frames-header"><div><h2><span>02</span> 镜头序列 <span id="count" class="tag">0 / 9</span></h2><p id="frame-info" class="hint">原始像素裁切，不缩放画面</p></div><span class="order mono">01 → 09</span></div><div id="frames" class="frames"></div><div class="bottom-note"><span><i></i> 图片只在当前设备处理</span><span>备注自动保存在本机浏览器</span></div></section></div></main>
-<footer><span class="mono">FRAME / 09</span><span>让分镜进入下一步。</span></footer><div id="toast" role="status" aria-live="polite"></div>
-<dialog id="preview"><button id="close-preview" aria-label="关闭预览">×</button><img id="preview-img" alt="单帧放大预览"><p id="preview-note"></p></dialog><script src="i18n.js"></script><script src="borders.js"></script><script src="app.js"></script></body></html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f3efe7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#13110f" media="(prefers-color-scheme: dark)">
+<meta name="description" content="FRAME / 09 — 本地九宫格分镜裁切器：导入 3×3 分镜，按原始像素拆成 9 帧，逐帧备注并打包下载 ZIP。A local-first 3×3 storyboard cutter.">
+<title>FRAME / 09 — 九宫格分镜裁切器</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%2313110f'/%3E%3Cg fill='%23ede6da'%3E%3Crect x='4' y='4' width='4.5' height='4.5' rx='1'/%3E%3Crect x='9.75' y='4' width='4.5' height='4.5' rx='1'/%3E%3Crect x='15.5' y='4' width='4.5' height='4.5' rx='1'/%3E%3Crect x='4' y='9.75' width='4.5' height='4.5' rx='1'/%3E%3Crect x='15.5' y='9.75' width='4.5' height='4.5' rx='1'/%3E%3Crect x='4' y='15.5' width='4.5' height='4.5' rx='1'/%3E%3Crect x='9.75' y='15.5' width='4.5' height='4.5' rx='1'/%3E%3Crect x='15.5' y='15.5' width='4.5' height='4.5' rx='1'/%3E%3C/g%3E%3Crect x='9.75' y='9.75' width='4.5' height='4.5' rx='1' fill='%23ff6a3d'/%3E%3C/svg%3E">
+<script>try{var s=localStorage.getItem('frame09-theme');if(s==='light'||s==='dark')document.documentElement.dataset.theme=s}catch(e){}</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-stage="empty">
+<header class="top">
+  <a class="brand" href="./" aria-label="FRAME / 09">
+    <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><g><rect x="2" y="2" width="6" height="6" rx="1.2"/><rect x="9" y="2" width="6" height="6" rx="1.2"/><rect x="16" y="2" width="6" height="6" rx="1.2"/><rect x="2" y="9" width="6" height="6" rx="1.2"/><rect x="16" y="9" width="6" height="6" rx="1.2"/><rect x="2" y="16" width="6" height="6" rx="1.2"/><rect x="9" y="16" width="6" height="6" rx="1.2"/><rect x="16" y="16" width="6" height="6" rx="1.2"/></g><rect class="core" x="9" y="9" width="6" height="6" rx="1.2"/></svg>
+    <span class="brand-name">FRAME<span class="mono">/09</span></span>
+  </a>
+  <span class="brand-tag" data-i18n="tagline"></span>
+  <div class="prefs">
+    <span class="local"><i class="dot" aria-hidden="true"></i><span data-i18n="local"></span></span>
+    <button id="language" class="pref mono" type="button" data-lock>EN</button>
+    <button id="theme" class="pref pref-icon" type="button">
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8 8 0 0 1 9.8 4a8 8 0 1 0 10.2 10.2Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow mono">STORYBOARD TOOLKIT · 3 × 3</p>
+    <h1 data-i18n-html="headline"></h1>
+    <p class="lede" data-i18n="lede"></p>
+    <ol class="steps" id="steps">
+      <li data-step="1"><span class="step-no mono">01</span><span data-i18n="step1"></span></li>
+      <li data-step="2"><span class="step-no mono">02</span><span data-i18n="step2"></span></li>
+      <li data-step="3"><span class="step-no mono">03</span><span data-i18n="step3"></span></li>
+    </ol>
+  </section>
+
+  <div class="workspace">
+    <div class="rail">
+      <section class="panel panel-source" aria-labelledby="h-source">
+        <div class="panel-head">
+          <h2 id="h-source"><span class="num mono">01</span><span data-i18n="source"></span></h2>
+          <button id="demo" class="link-btn" type="button" data-lock data-i18n="demo"></button>
+        </div>
+        <input id="file" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" hidden>
+        <button id="drop" class="drop" type="button" data-lock>
+          <span class="drop-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <strong data-i18n="dropTitle"></strong>
+          <small class="mono" data-i18n="dropMeta"></small>
+        </button>
+        <div id="source" class="source" hidden>
+          <div class="source-wrap"><img id="original" alt=""><svg id="overlay" aria-hidden="true"></svg><span class="scan" aria-hidden="true"></span></div>
+          <div class="file-info">
+            <div class="file-text"><span id="filename" class="filename"></span><span id="dimensions" class="meta mono"></span></div>
+            <button id="replace" class="link-btn" type="button" data-lock data-i18n="replace"></button>
+          </div>
+        </div>
+
+        <div class="crop">
+          <div class="sub-head"><h3 data-i18n="crop"></h3><span class="tag mono">3 × 3</span></div>
+          <div class="segmented" role="radiogroup" data-i18n-aria="crop">
+            <label><input type="radio" name="mode" value="auto" checked data-lock><span data-i18n="modeAuto"></span></label>
+            <label><input type="radio" name="mode" value="manual" data-lock><span data-i18n="modeManual"></span></label>
+          </div>
+          <p id="detection-info" class="status-line" aria-live="polite"></p>
+          <div class="fields">
+            <label class="field"><span class="field-label"><span data-i18n="margin"></span><em class="mono">px</em></span><input id="margin" type="number" inputmode="numeric" min="0" step="1" value="0" data-lock></label>
+            <label class="field"><span class="field-label"><span data-i18n="gutter"></span><em class="mono">px</em></span><input id="gutter" type="number" inputmode="numeric" min="0" step="1" value="0" data-lock></label>
+          </div>
+          <p class="hint" data-i18n="spacingHint"></p>
+          <button id="cut" class="btn btn-primary" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.1 8.1 20 20M8.1 15.9 20 4"/></svg>
+            <span id="cut-label"></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel panel-export" aria-labelledby="h-export">
+        <div class="panel-head"><h2 id="h-export"><span class="num mono">03</span><span data-i18n="export"></span></h2></div>
+        <label class="field"><span class="field-label" data-i18n="prefix"></span><input id="prefix" value="storyboard" maxlength="60" autocomplete="off" spellcheck="false" data-lock></label>
+        <div class="field">
+          <span class="field-label" data-i18n="format"></span>
+          <div class="segmented" role="radiogroup" data-i18n-aria="format">
+            <label><input type="radio" name="format" value="png" checked data-lock><span data-i18n="png"></span></label>
+            <label><input type="radio" name="format" value="jpeg" data-lock><span data-i18n="jpeg"></span></label>
+          </div>
+        </div>
+        <label class="check"><input id="captions" type="checkbox" data-lock><span class="check-box" aria-hidden="true"></span><span><b data-i18n="captions"></b><small data-i18n="captionsHint"></small></span></label>
+        <button id="export" class="btn btn-ink" type="button" disabled>
+          <span id="export-fill" class="btn-fill" aria-hidden="true"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7 10l5 5 5-5M4.5 19.5h15"/></svg>
+          <span data-i18n="download"></span>
+        </button>
+        <p id="progress" class="hint" role="status" aria-live="polite" data-i18n="zipHint"></p>
+      </section>
+    </div>
+
+    <section class="sheet" id="sheet" aria-labelledby="h-seq">
+      <div class="sheet-head">
+        <div>
+          <h2 id="h-seq"><span class="num mono">02</span><span data-i18n="sequence"></span><span id="count" class="tag mono">0 / 9</span></h2>
+          <p id="frame-info" class="hint" aria-live="polite"></p>
+        </div>
+        <span class="order mono" aria-hidden="true">01 → 09</span>
+      </div>
+      <div class="film-edge" aria-hidden="true"></div>
+      <div id="frames" class="frames"></div>
+      <div class="sheet-foot"><span><i class="dot" aria-hidden="true"></i><span data-i18n="foot1"></span></span><span data-i18n="foot2"></span></div>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <span class="mono">FRAME / 09</span>
+  <span data-i18n="footer"></span>
+  <a class="mono" href="https://github.com/mango-guo/Nine-frames.-One-cut" target="_blank" rel="noopener">GitHub ↗</a>
+</footer>
+
+<div class="dock"><button id="dock-btn" class="btn btn-primary" type="button"><span id="dock-label"></span></button></div>
+<div id="drag-overlay" class="drag-overlay" aria-hidden="true"><div class="drag-box"><span class="drop-grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><strong data-i18n="dropOverlay"></strong></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<dialog id="preview" aria-labelledby="preview-shot">
+  <div class="dlg-head">
+    <span id="preview-shot" class="mono dlg-shot"></span><span id="preview-dim" class="mono meta"></span>
+    <div class="dlg-nav">
+      <button id="prev" class="icon-btn" type="button" data-i18n-aria="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button id="next" class="icon-btn" type="button" data-i18n-aria="next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button id="close-preview" class="icon-btn" type="button" data-i18n-aria="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+  </div>
+  <div class="dlg-figure"><img id="preview-img" alt=""></div>
+  <label class="sr-only" for="preview-note" data-i18n="noteLabel"></label>
+  <textarea id="preview-note" class="dlg-note" maxlength="1000" rows="2"></textarea>
+</dialog>
+
+<script src="i18n.js"></script>
+<script src="borders.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
